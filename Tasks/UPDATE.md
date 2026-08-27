@@ -24,7 +24,7 @@ T01 → T02 → T03 → T04 → T05 → T06
 
 | # | File | Commit Message | Depends On | Phase | Status |
 |---|------|----------------|------------|-------|--------|
-| T01 | [`T01_project_scaffold.md`](./T01_project_scaffold.md) | `chore: initialise Next.js project with TypeScript, Tailwind, shadcn/ui` | — | MVP | ⬜ Pending |
+| T01 | [`T01_project_scaffold.md`](./T01_project_scaffold.md) | `chore: initialise Next.js project with TypeScript, Tailwind, shadcn/ui` | — | MVP | ✅ Done |
 | T02 | [`T02_types_and_schema.md`](./T02_types_and_schema.md) | `feat: add core TypeScript types and Prisma database schema` | T01 | MVP | ⬜ Pending |
 | T03 | [`T03_github_service.md`](./T03_github_service.md) | `feat: add GitHub repository fetch and file-filtering service` | T02 | MVP | ⬜ Pending |
 | T04 | [`T04_intelligence_engine.md`](./T04_intelligence_engine.md) | `feat: add static repository analyser — detects stack, arch, modules, APIs, DB, security` | T03 | MVP | ⬜ Pending |
@@ -67,6 +67,7 @@ T01 → T02 → T03 → T04 → T05 → T06
 | Date | Task | Change | Notes |
 |------|------|--------|-------|
 | 2026-08-26 | — | `UPDATE.md` initialised from `Tasks/README.md` | Baseline tracking document created |
+| 2026-08-27 | T01 | ✅ Done | Next.js scaffold, Tailwind, tsconfig, folder structure, API stubs, .env.example |
 
 ---
 
