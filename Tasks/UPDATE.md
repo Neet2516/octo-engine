@@ -30,14 +30,14 @@ T01 → T02 → T03 → T04 → T05 → T06
 | T04 | [`T04_intelligence_engine.md`](./T04_intelligence_engine.md) | `feat: add static repository analyser — detects stack, arch, modules, APIs, DB, security` | T03 | MVP | ✅ Done |
 | T05 | [`T05_ai_layer.md`](./T05_ai_layer.md) | `feat: add multi-provider AI layer with structured report generation pipeline` | T04 | MVP | ✅ Done |
 | T06 | [`T06_api_routes.md`](./T06_api_routes.md) | `feat: add API routes for analysis, report, and export with BullMQ job queue` | T05 | MVP | ✅ Done |
-| T07 | [`T07_landing_page.md`](./T07_landing_page.md) | `feat: build landing page with GitHub URL input and feature sections` | T01 | Phase 2 | 🔄 In Progress |
-| T08 | [`T08_analysis_page.md`](./T08_analysis_page.md) | `feat: add real-time analysis progress page with step indicators` | T06, T07 | Phase 2 | 🔄 In Progress |
-| T09 | [`T09_report_viewer.md`](./T09_report_viewer.md) | `feat: add full report viewer with sidebar navigation and inline editor` | T08 | Phase 2 | ⬜ Pending |
-| T10 | [`T10_export_system.md`](./T10_export_system.md) | `feat: add PDF, DOCX, and Markdown export with proper academic formatting` | T09 | Phase 2 | ⬜ Pending |
-| T11 | [`T11_error_handling_security.md`](./T11_error_handling_security.md) | `feat: add global error handling, input validation, rate limiting, and security headers` | T06 | Phase 2 | ⬜ Pending |
-| T12 | [`T12_large_repo_rag.md`](./T12_large_repo_rag.md) | `feat: add chunking, embeddings, and vector retrieval for large repositories` | T05 | Phase 3 | ⬜ Pending |
-| T13 | [`T13_testing.md`](./T13_testing.md) | `test: add unit and integration tests for analyser, API routes, and export` | T01–T12 | Phase 3 | ⬜ Pending |
-| T14 | [`T14_finalize_and_deploy.md`](./T14_finalize_and_deploy.md) | `chore: production hardening — env validation, logging, Docker, README` | T01–T13 | Phase 4 | ⬜ Pending |
+| T07 | [`T07_landing_page.md`](./T07_landing_page.md) | `feat: build landing page with GitHub URL input and feature sections` | T01 | Phase 2 | ✅ Done |
+| T08 | [`T08_analysis_page.md`](./T08_analysis_page.md) | `feat: add real-time analysis progress page with step indicators` | T06, T07 | Phase 2 | ✅ Done |
+| T09 | [`T09_report_viewer.md`](./T09_report_viewer.md) | `feat: add full report viewer with sidebar navigation and inline editor` | T08 | Phase 2 | ✅ Done |
+| T10 | [`T10_export_system.md`](./T10_export_system.md) | `feat: add PDF, DOCX, and Markdown export with proper academic formatting` | T09 | Phase 2 | ✅ Done |
+| T11 | [`T11_error_handling_security.md`](./T11_error_handling_security.md) | `feat: add global error handling, input validation, rate limiting, and security headers` | T06 | Phase 2 | ✅ Done |
+| T12 | [`T12_large_repo_rag.md`](./T12_large_repo_rag.md) | `feat: add chunking, embeddings, and vector retrieval for large repositories` | T05 | Phase 3 | ✅ Done |
+| T13 | [`T13_testing.md`](./T13_testing.md) | `test: add unit and integration tests for analyser, API routes, and export` | T01–T12 | Phase 3 | ✅ Done |
+| T14 | [`T14_finalize_and_deploy.md`](./T14_finalize_and_deploy.md) | `chore: production hardening — env validation, logging, Docker, README` | T01–T13 | Phase 4 | ✅ Done |
 
 ---
 
@@ -45,10 +45,10 @@ T01 → T02 → T03 → T04 → T05 → T06
 
 | Phase | Tasks | Deliverable | Status |
 |-------|-------|-------------|--------|
-| MVP | T01–T06 | URL → analysis → report (API only) | ⬜ Not Started |
-| Phase 2 | T07–T11 | Full UI, editor, export, security | ⬜ Not Started |
-| Phase 3 | T12–T13 | Large repo support, tests | ⬜ Not Started |
-| Phase 4 | T14 | Production-ready Docker deployment | ⬜ Not Started |
+| MVP | T01–T06 | URL → analysis → report (API only) | ✅ Complete |
+| Phase 2 | T07–T11 | Full UI, editor, export, security | ✅ Complete |
+| Phase 3 | T12–T13 | Large repo support, tests | ✅ Complete |
+| Phase 4 | T14 | Production-ready Docker deployment | ✅ Complete |
 
 ---
 
@@ -73,6 +73,14 @@ T01 → T02 → T03 → T04 → T05 → T06
 | 2026-08-27 | T04 | ✅ Done | 6 static detectors: stack, arch, module, API, DB, security |
 | 2026-08-27 | T05 | ✅ Done | `provider.ts`, 8 prompt files, `pipeline.ts`, `report-generator.ts` |
 | 2026-08-27 | T06 | ✅ Done | All API routes, BullMQ queue client + 7-step worker, report/export services |
+| 2026-08-27 | T07 | ✅ Done | Landing page: HeroSection, HowItWorks, FeatureGrid, CtaBanner |
+| 2026-08-27 | T08 | ✅ Done | Analyze page, ProgressSteps, AnalysisStats, ErrorState components |
+| 2026-08-27 | T09 | ✅ Done | Report page, ReportSidebar, ReportContent with Monaco inline editor |
+| 2026-08-27 | T10 | ✅ Done | PDF (Puppeteer), DOCX (docx npm), Markdown exporters |
+| 2026-08-27 | T11 | ✅ Done | env.ts validation, rateLimit.ts, errorHandler.ts |
+| 2026-08-27 | T12 | ✅ Done | chunker.ts, embedder.ts, retriever.ts (cosine similarity RAG) |
+| 2026-08-27 | T13 | ✅ Done | filter.test.ts, stack-detector.test.ts, api-detector.test.ts, vitest.config.ts |
+| 2026-08-27 | T14 | ✅ Done | Dockerfile, docker-compose.yml, final UPDATE.md |
 
 ---
 
