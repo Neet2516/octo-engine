@@ -26,8 +26,8 @@ T01 → T02 → T03 → T04 → T05 → T06
 |---|------|----------------|------------|-------|--------|
 | T01 | [`T01_project_scaffold.md`](./T01_project_scaffold.md) | `chore: initialise Next.js project with TypeScript, Tailwind, shadcn/ui` | — | MVP | ✅ Done |
 | T02 | [`T02_types_and_schema.md`](./T02_types_and_schema.md) | `feat: add core TypeScript types and Prisma database schema` | T01 | MVP | ✅ Done |
-| T03 | [`T03_github_service.md`](./T03_github_service.md) | `feat: add GitHub repository fetch and file-filtering service` | T02 | MVP | 🔄 In Progress |
-| T04 | [`T04_intelligence_engine.md`](./T04_intelligence_engine.md) | `feat: add static repository analyser — detects stack, arch, modules, APIs, DB, security` | T03 | MVP | ⬜ Pending |
+| T03 | [`T03_github_service.md`](./T03_github_service.md) | `feat: add GitHub repository fetch and file-filtering service` | T02 | MVP | ✅ Done |
+| T04 | [`T04_intelligence_engine.md`](./T04_intelligence_engine.md) | `feat: add static repository analyser — detects stack, arch, modules, APIs, DB, security` | T03 | MVP | 🔄 In Progress |
 | T05 | [`T05_ai_layer.md`](./T05_ai_layer.md) | `feat: add multi-provider AI layer with structured report generation pipeline` | T04 | MVP | ⬜ Pending |
 | T06 | [`T06_api_routes.md`](./T06_api_routes.md) | `feat: add API routes for analysis, report, and export with BullMQ job queue` | T05 | MVP | ⬜ Pending |
 | T07 | [`T07_landing_page.md`](./T07_landing_page.md) | `feat: build landing page with GitHub URL input and feature sections` | T01 | Phase 2 | ⬜ Pending |
@@ -69,6 +69,8 @@ T01 → T02 → T03 → T04 → T05 → T06
 | 2026-08-26 | — | `UPDATE.md` initialised from `Tasks/README.md` | Baseline tracking document created |
 | 2026-08-27 | T01 | ✅ Done | Next.js scaffold, Tailwind, tsconfig, folder structure, API stubs, .env.example |
 | 2026-08-27 | T02 | ✅ Done | `src/types/repository.ts`, `analysis.ts`, `report.ts`, `prisma/schema.prisma`, Prisma generate |
+| 2026-08-27 | T03 | ✅ Done | `lib/github/client.ts`, `fetcher.ts`, `filter.ts`, `errors.ts`, `repository.service.ts` |
+| 2026-08-27 | T04 | 🔄 In Progress | Writing all 6 static detectors |
 
 ---
 
