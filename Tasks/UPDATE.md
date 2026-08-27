@@ -29,9 +29,9 @@ T01 → T02 → T03 → T04 → T05 → T06
 | T03 | [`T03_github_service.md`](./T03_github_service.md) | `feat: add GitHub repository fetch and file-filtering service` | T02 | MVP | ✅ Done |
 | T04 | [`T04_intelligence_engine.md`](./T04_intelligence_engine.md) | `feat: add static repository analyser — detects stack, arch, modules, APIs, DB, security` | T03 | MVP | ✅ Done |
 | T05 | [`T05_ai_layer.md`](./T05_ai_layer.md) | `feat: add multi-provider AI layer with structured report generation pipeline` | T04 | MVP | ✅ Done |
-| T06 | [`T06_api_routes.md`](./T06_api_routes.md) | `feat: add API routes for analysis, report, and export with BullMQ job queue` | T05 | MVP | 🔄 In Progress |
-| T07 | [`T07_landing_page.md`](./T07_landing_page.md) | `feat: build landing page with GitHub URL input and feature sections` | T01 | Phase 2 | ⬜ Pending |
-| T08 | [`T08_analysis_page.md`](./T08_analysis_page.md) | `feat: add real-time analysis progress page with step indicators` | T06, T07 | Phase 2 | ⬜ Pending |
+| T06 | [`T06_api_routes.md`](./T06_api_routes.md) | `feat: add API routes for analysis, report, and export with BullMQ job queue` | T05 | MVP | ✅ Done |
+| T07 | [`T07_landing_page.md`](./T07_landing_page.md) | `feat: build landing page with GitHub URL input and feature sections` | T01 | Phase 2 | 🔄 In Progress |
+| T08 | [`T08_analysis_page.md`](./T08_analysis_page.md) | `feat: add real-time analysis progress page with step indicators` | T06, T07 | Phase 2 | 🔄 In Progress |
 | T09 | [`T09_report_viewer.md`](./T09_report_viewer.md) | `feat: add full report viewer with sidebar navigation and inline editor` | T08 | Phase 2 | ⬜ Pending |
 | T10 | [`T10_export_system.md`](./T10_export_system.md) | `feat: add PDF, DOCX, and Markdown export with proper academic formatting` | T09 | Phase 2 | ⬜ Pending |
 | T11 | [`T11_error_handling_security.md`](./T11_error_handling_security.md) | `feat: add global error handling, input validation, rate limiting, and security headers` | T06 | Phase 2 | ⬜ Pending |
@@ -72,6 +72,7 @@ T01 → T02 → T03 → T04 → T05 → T06
 | 2026-08-27 | T03 | ✅ Done | `lib/github/client.ts`, `fetcher.ts`, `filter.ts`, `errors.ts`, `repository.service.ts` |
 | 2026-08-27 | T04 | ✅ Done | 6 static detectors: stack, arch, module, API, DB, security |
 | 2026-08-27 | T05 | ✅ Done | `provider.ts`, 8 prompt files, `pipeline.ts`, `report-generator.ts` |
+| 2026-08-27 | T06 | ✅ Done | All API routes, BullMQ queue client + 7-step worker, report/export services |
 
 ---
 
