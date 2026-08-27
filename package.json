@@ -54,6 +54,8 @@
     "zod": "^4.4.3"
   },
   "devDependencies": {
-    "prisma": "^8.0.0-rc.12"
+    "happy-dom": "^20.11.8",
+    "prisma": "^8.0.0-rc.12",
+    "vitest": "^4.1.11"
   }
 }
