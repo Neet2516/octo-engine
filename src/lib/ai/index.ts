@@ -1,2 +1,3 @@
-// AI provider abstraction — implemented in T05
-export {}
+export { getAIProvider, OpenAIProvider, AnthropicProvider } from './provider'
+export { runAIPipeline } from './pipeline'
+export { generateReportSections, regenerateSection } from './report-generator'
