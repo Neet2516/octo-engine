@@ -540,10 +540,8 @@ export function getAIProvider(): AIProvider {
   if (groqKey) {
     // Primary model first, then fallback models in order of capability
     const groqModels = [
-      process.env.GROQ_MODEL || 'llama-3.3-70b-versatile',
-      'llama-3.1-8b-instant',
-      'gemma2-9b-it',
-      'mixtral-8x7b-32768',
+      process.env.GROQ_MODEL || 'llama3-70b-8192',
+      'llama3-8b-8192',
     ]
     for (const model of groqModels) {
       chain.push({ name: `Groq/${model}`, provider: new GroqProvider(groqKey, model) })
@@ -568,7 +566,7 @@ export function getAIProvider(): AIProvider {
   // 3. Google Gemini (https://aistudio.google.com — 100% free key)
   const geminiKey = process.env.GEMINI_API_KEY
   if (geminiKey) {
-    for (const model of [process.env.GEMINI_MODEL || 'gemini-2.0-flash', 'gemini-1.5-flash', 'gemini-1.5-pro']) {
+    for (const model of [process.env.GEMINI_MODEL || 'gemini-3.6-flash']) {
       chain.push({ name: `Gemini/${model}`, provider: new GeminiProvider(geminiKey, model) })
     }
   }
