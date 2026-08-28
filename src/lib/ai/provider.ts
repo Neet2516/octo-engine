@@ -502,16 +502,17 @@ export class FallbackProvider implements AIProvider {
 
     for (const { name, provider } of this.providers) {
       try {
-        return await provider.complete(prompt, schema)
+        const result = await provider.complete(prompt, schema)
+        return result
       } catch (err: unknown) {
         const msg = err instanceof Error ? err.message : String(err)
-        console.warn(`[AI Shift Warning]: Provider "${name}" failed. Shifting to next model/provider... Error: ${msg}`)
+        console.warn(`[AI Shift Warning]: Provider "${name}" failed. Shifting to next... Error: ${msg}`)
         errors.push(`${name}: ${msg}`)
       }
     }
 
-    console.warn(`[AI Shift Notice]: All active providers failed. Using Offline Static Fallback. Errors: ${errors.join(' | ')}`)
-    return new OfflineStaticProvider().complete(prompt, schema)
+    // ALL providers failed — throw so callers can use their own rich fallback
+    throw new Error(`All AI providers failed: ${errors.join(' | ')}`)
   }
 
   async *streamComplete(prompt: string): AsyncIterable<string> {
@@ -525,7 +526,7 @@ export class FallbackProvider implements AIProvider {
         console.warn(`[AI Shift Warning]: Stream provider "${name}" failed, shifting...`)
       }
     }
-    yield* new OfflineStaticProvider().streamComplete(prompt)
+    throw new Error('All stream providers failed')
   }
 }
 
@@ -534,78 +535,66 @@ export class FallbackProvider implements AIProvider {
 export function getAIProvider(): AIProvider {
   const chain: { name: string; provider: AIProvider }[] = []
 
-  // 1. Groq (Fastest Free Tier with multiple free models)
+  // 1. Groq (Fastest Free Tier — https://console.groq.com/keys)
   const groqKey = process.env.GROQ_API_KEY
   if (groqKey) {
+    // Primary model first, then fallback models in order of capability
     const groqModels = [
       process.env.GROQ_MODEL || 'llama-3.3-70b-versatile',
       'llama-3.1-8b-instant',
-      'mixtral-8x7b-32768',
       'gemma2-9b-it',
+      'mixtral-8x7b-32768',
     ]
     for (const model of groqModels) {
-      chain.push({
-        name: `Groq (${model})`,
-        provider: new GroqProvider(groqKey, model),
-      })
+      chain.push({ name: `Groq/${model}`, provider: new GroqProvider(groqKey, model) })
     }
   }
 
-  // 2. OpenRouter (Free Tier Models with automatic rotation)
+  // 2. OpenRouter free models — rotate across multiple when one rate-limits
   const openrouterKey = process.env.OPENROUTER_API_KEY
   if (openrouterKey) {
     const openrouterModels = [
-      process.env.OPENROUTER_MODEL || 'google/gemini-2.0-flash-exp:free',
-      'meta-llama/llama-3.3-70b-instruct:free',
+      process.env.OPENROUTER_MODEL || 'meta-llama/llama-3.3-70b-instruct:free',
       'deepseek/deepseek-r1:free',
       'mistralai/mistral-7b-instruct:free',
       'qwen/qwen-2.5-coder-32b-instruct:free',
+      'google/gemma-3-27b-it:free',
     ]
     for (const model of openrouterModels) {
-      chain.push({
-        name: `OpenRouter (${model})`,
-        provider: new OpenRouterProvider(openrouterKey, model),
-      })
+      chain.push({ name: `OpenRouter/${model}`, provider: new OpenRouterProvider(openrouterKey, model) })
     }
   }
 
-  // 3. Google Gemini (100% Free API Key from Google AI Studio)
+  // 3. Google Gemini (https://aistudio.google.com — 100% free key)
   const geminiKey = process.env.GEMINI_API_KEY
   if (geminiKey) {
-    const geminiModels = [
-      process.env.GEMINI_MODEL || 'gemini-2.0-flash',
-      'gemini-1.5-flash',
-      'gemini-1.5-pro',
-    ]
-    for (const model of geminiModels) {
-      chain.push({
-        name: `Gemini (${model})`,
-        provider: new GeminiProvider(geminiKey, model),
-      })
+    for (const model of [process.env.GEMINI_MODEL || 'gemini-2.0-flash', 'gemini-1.5-flash', 'gemini-1.5-pro']) {
+      chain.push({ name: `Gemini/${model}`, provider: new GeminiProvider(geminiKey, model) })
     }
   }
 
-  // 4. OpenAI / Anthropic if configured
+  // 4. OpenAI / Anthropic
   if (process.env.OPENAI_API_KEY) {
-    chain.push({
-      name: 'OpenAI',
-      provider: new OpenAIProvider(process.env.OPENAI_API_KEY),
-    })
+    chain.push({ name: 'OpenAI/gpt-4o', provider: new OpenAIProvider(process.env.OPENAI_API_KEY) })
   }
   if (process.env.ANTHROPIC_API_KEY) {
+    chain.push({ name: 'Anthropic/claude', provider: new AnthropicProvider(process.env.ANTHROPIC_API_KEY) })
+  }
+
+  // 5. Ollama — only if explicitly configured (not default-added, avoids wasted timeout)
+  if (process.env.OLLAMA_HOST) {
     chain.push({
-      name: 'Anthropic',
-      provider: new AnthropicProvider(process.env.ANTHROPIC_API_KEY),
+      name: 'Ollama/local',
+      provider: new OllamaProvider(process.env.OLLAMA_HOST, process.env.OLLAMA_MODEL || 'llama3'),
     })
   }
 
-  // 5. Local Ollama (Zero Key, unlimited local compute)
-  const ollamaHost = process.env.OLLAMA_HOST || 'http://localhost:11434'
-  chain.push({
-    name: 'Local Ollama',
-    provider: new OllamaProvider(ollamaHost, process.env.OLLAMA_MODEL || 'qwen2.5-coder:latest'),
-  })
+  // No API keys at all — use OfflineStaticProvider (pipeline tasks 01-07 will work,
+  // section generation falls through to rich generateFallbackContent() in report-generator)
+  if (chain.length === 0) {
+    console.warn('[octo-engine] No AI provider API keys found. Using offline static analysis. Add GROQ_API_KEY to .env for free AI-powered reports.')
+    return new OfflineStaticProvider()
+  }
 
-  // Return resilient fallback provider chain
   return new FallbackProvider(chain)
 }
