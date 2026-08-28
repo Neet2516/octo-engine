@@ -2,11 +2,13 @@
 import { useState, FormEvent } from 'react'
 import { useRouter } from 'next/navigation'
 import { motion } from 'framer-motion'
+import { useToast } from '@/components/ui/toast'
 
 export default function HeroSection() {
   const [url, setUrl] = useState('')
   const [error, setError] = useState('')
   const router = useRouter()
+  const { toast } = useToast()
 
   function validateUrl(val: string): boolean {
     try {
@@ -20,7 +22,13 @@ export default function HeroSection() {
   function handleSubmit(e: FormEvent) {
     e.preventDefault()
     if (!validateUrl(url)) {
-      setError('Please enter a valid GitHub repository URL (e.g. https://github.com/username/repo)')
+      const msg = 'Please enter a valid public GitHub repository URL (e.g. https://github.com/username/repo)'
+      setError(msg)
+      toast({
+        title: 'Invalid GitHub URL',
+        message: msg,
+        type: 'warning',
+      })
       return
     }
     setError('')
@@ -43,7 +51,7 @@ export default function HeroSection() {
         {/* Badge */}
         <div className="inline-flex items-center gap-2 px-3 py-1 mb-6 rounded-full border border-indigo-500/30 bg-indigo-500/10 text-indigo-300 text-sm font-medium">
           <span className="w-2 h-2 rounded-full bg-indigo-400 animate-pulse" />
-          AI-Powered · Evidence-Backed · Zero Hallucinations
+          Multi-Model Failover · Groq + OpenRouter + Gemini · Zero Hallucinations
         </div>
 
         {/* Headline */}
@@ -52,7 +60,7 @@ export default function HeroSection() {
         </h1>
 
         <p className="text-lg md:text-xl text-gray-400 mb-10 max-w-2xl mx-auto">
-          Analyse your codebase with AI and generate a professional, documentation-ready academic report in minutes.
+          Analyse your codebase with resilient multi-model AI and generate a professional, documentation-ready academic report in minutes.
         </p>
 
         {/* URL Input */}
@@ -82,7 +90,16 @@ export default function HeroSection() {
         <p className="text-gray-500 text-sm mt-3">
           Try an example:{' '}
           <button
-            onClick={() => setUrl('https://github.com/vercel/next.js')}
+            type="button"
+            onClick={() => {
+              const demo = 'https://github.com/vercel/next.js'
+              setUrl(demo)
+              toast({
+                title: 'Example Loaded',
+                message: 'Loaded vercel/next.js repository URL',
+                type: 'info',
+              })
+            }}
             className="text-indigo-400 hover:text-indigo-300 underline underline-offset-2 transition-colors"
           >
             vercel/next.js

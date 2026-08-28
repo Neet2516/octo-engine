@@ -1,12 +1,17 @@
 import type { Report, ReportSection } from '@/types/report'
 import { randomUUID } from 'crypto'
 
-// In-memory store until DB is wired
-const reports = new Map<string, Report>()
+declare global {
+  // eslint-disable-next-line no-var
+  var _octoReports: Map<string, Report> | undefined
+}
 
-export async function createReport(repositoryId: string, title: string): Promise<Report> {
+// In-memory store until DB is wired
+const reports: Map<string, Report> = globalThis._octoReports ?? (globalThis._octoReports = new Map<string, Report>())
+
+export async function createReport(repositoryId: string, title: string, id?: string): Promise<Report> {
   const report: Report = {
-    id: randomUUID(),
+    id: id || randomUUID(),
     repositoryId,
     title,
     status: 'pending',

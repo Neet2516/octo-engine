@@ -4,6 +4,7 @@ import type { Report } from '@/types/report'
 import ReactMarkdown from 'react-markdown'
 import { Edit3, RefreshCw } from 'lucide-react'
 import dynamic from 'next/dynamic'
+import { useToast } from '@/components/ui/toast'
 
 const MonacoEditor = dynamic(() => import('@monaco-editor/react'), { ssr: false })
 
@@ -17,21 +18,69 @@ export default function ReportContent({
   const [editingId, setEditingId] = useState<string | null>(null)
   const [editContent, setEditContent] = useState('')
   const [saving, setSaving] = useState(false)
+  const [regeneratingId, setRegeneratingId] = useState<string | null>(null)
+  const { toast } = useToast()
 
   async function saveSection(sectionId: string) {
     setSaving(true)
-    await fetch(`/api/reports/${report.id}/sections/${sectionId}`, {
-      method: 'PATCH',
-      headers: { 'Content-Type': 'application/json' },
-      body: JSON.stringify({ content: editContent }),
-    })
-    onSectionUpdate(sectionId, editContent)
-    setEditingId(null)
-    setSaving(false)
+    try {
+      const res = await fetch(`/api/reports/${report.id}/sections/${sectionId}`, {
+        method: 'PATCH',
+        headers: { 'Content-Type': 'application/json' },
+        body: JSON.stringify({ content: editContent }),
+      })
+      if (!res.ok) throw new Error('Failed to update section')
+      onSectionUpdate(sectionId, editContent)
+      setEditingId(null)
+      toast({
+        title: 'Section Saved',
+        message: 'Your modifications have been persisted.',
+        type: 'success',
+      })
+    } catch (err: unknown) {
+      toast({
+        title: 'Save Failed',
+        message: err instanceof Error ? err.message : 'Could not save section changes',
+        type: 'error',
+      })
+    } finally {
+      setSaving(false)
+    }
   }
 
-  async function regenerateSection(sectionId: string) {
-    await fetch(`/api/reports/${report.id}/sections/${sectionId}/regenerate`, { method: 'POST' })
+  async function regenerateSection(sectionId: string, sectionTitle: string) {
+    setRegeneratingId(sectionId)
+    toast({
+      title: 'Regenerating Section',
+      message: `Running AI generation for "${sectionTitle}"...`,
+      type: 'info',
+    })
+    try {
+      const res = await fetch(`/api/reports/${report.id}/sections/${sectionId}/regenerate`, {
+        method: 'POST',
+      })
+      if (!res.ok) {
+        const err = await res.json().catch(() => ({ message: 'Regeneration failed' }))
+        throw new Error(err.message || 'Regeneration failed')
+      }
+      const updated = await res.json()
+      if (updated?.content) {
+        onSectionUpdate(sectionId, updated.content)
+      }
+      toast({
+        title: 'Section Regenerated',
+        message: `"${sectionTitle}" updated with fresh AI findings!`,
+        type: 'success',
+      })
+    } catch (err: unknown) {
+      toast({
+        title: 'Regeneration Error',
+        message: err instanceof Error ? err.message : 'AI section regeneration failed',
+        type: 'error',
+      })
+    } finally {
+      setRegeneratingId(null)
+    }
   }
 
   return (
@@ -49,11 +98,12 @@ export default function ReportContent({
                 <Edit3 className="w-4 h-4" />
               </button>
               <button
-                onClick={() => regenerateSection(section.id)}
-                className="p-2 rounded-lg hover:bg-white/5 text-gray-400 hover:text-white transition-colors"
+                onClick={() => regenerateSection(section.id, section.title)}
+                disabled={regeneratingId === section.id}
+                className="p-2 rounded-lg hover:bg-white/5 text-gray-400 hover:text-white transition-colors disabled:opacity-40"
                 title="Regenerate section"
               >
-                <RefreshCw className="w-4 h-4" />
+                <RefreshCw className={`w-4 h-4 ${regeneratingId === section.id ? 'animate-spin text-indigo-400' : ''}`} />
               </button>
             </div>
           </div>

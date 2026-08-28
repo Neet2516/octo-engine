@@ -1,5 +1,16 @@
 import { NextRequest, NextResponse } from 'next/server'
+import { getReport } from '@/services/report.service'
 
 export async function GET(_req: NextRequest, { params }: { params: { id: string } }) {
-  return NextResponse.json({ message: `Report ${params.id} — implemented in T06` }, { status: 501 })
+  try {
+    const report = await getReport(params.id)
+    if (!report) {
+      return NextResponse.json({ error: 'REPORT_NOT_FOUND', message: 'Report not found' }, { status: 404 })
+    }
+    return NextResponse.json(report)
+  } catch (err: unknown) {
+    console.error('Error fetching report:', err)
+    return NextResponse.json({ error: 'INTERNAL_ERROR', message: 'Failed to retrieve report' }, { status: 500 })
+  }
 }
+

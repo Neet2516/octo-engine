@@ -14,6 +14,16 @@ function tryJson(s: unknown): Record<string, unknown> {
   try { return JSON.parse(String(s)) } catch { return {} }
 }
 
+async function safeComplete(ai: ReturnType<typeof getAIProvider>, prompt: string): Promise<Record<string, unknown>> {
+  try {
+    const res = await ai.complete(prompt)
+    return tryJson(res)
+  } catch (err) {
+    console.warn('[AI Pipeline Warning] Provider error, falling back to static analysis:', err)
+    return {}
+  }
+}
+
 /**
  * Runs the 7-task AI enrichment pipeline sequentially.
  * Each task receives the static analysis facts + relevant code excerpts.
@@ -27,39 +37,25 @@ export async function runAIPipeline(
   const ai = getAIProvider()
 
   // Task 01: Project understanding
-  const understandResult = tryJson(
-    await ai.complete(understand(meta, staticAnalysis, relevantExcerpts))
-  )
+  const understandResult = await safeComplete(ai, understand(meta, staticAnalysis, relevantExcerpts))
 
   // Task 02: Architecture
-  const archResult = tryJson(
-    await ai.complete(architecture(staticAnalysis, relevantExcerpts))
-  )
+  const archResult = await safeComplete(ai, architecture(staticAnalysis, relevantExcerpts))
 
   // Task 03: Modules
-  const modulesResult = tryJson(
-    await ai.complete(modules(staticAnalysis, relevantExcerpts))
-  )
+  const modulesResult = await safeComplete(ai, modules(staticAnalysis, relevantExcerpts))
 
   // Task 04: APIs
-  const apisResult = tryJson(
-    await ai.complete(apis(staticAnalysis, relevantExcerpts))
-  )
+  const apisResult = await safeComplete(ai, apis(staticAnalysis, relevantExcerpts))
 
   // Task 05: Database
-  const dbResult = tryJson(
-    await ai.complete(database(staticAnalysis, relevantExcerpts))
-  )
+  const dbResult = await safeComplete(ai, database(staticAnalysis, relevantExcerpts))
 
   // Task 06: Security
-  const secResult = tryJson(
-    await ai.complete(security(staticAnalysis, relevantExcerpts))
-  )
+  const secResult = await safeComplete(ai, security(staticAnalysis, relevantExcerpts))
 
   // Task 07: Testing
-  const testResult = tryJson(
-    await ai.complete(testing(staticAnalysis, relevantExcerpts))
-  )
+  const testResult = await safeComplete(ai, testing(staticAnalysis, relevantExcerpts))
 
   // Merge static + AI results
   const merged: RepositoryAnalysis = {

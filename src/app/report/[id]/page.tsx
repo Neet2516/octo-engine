@@ -3,32 +3,68 @@ import { useEffect, useState } from 'react'
 import type { Report } from '@/types/report'
 import ReportSidebar from '@/components/report/ReportSidebar'
 import ReportContent from '@/components/report/ReportContent'
-import { Download, Edit } from 'lucide-react'
+import { Download } from 'lucide-react'
+import { useToast } from '@/components/ui/toast'
 
 export default function ReportPage({ params }: { params: { id: string } }) {
   const [report, setReport] = useState<Report | null>(null)
   const [loading, setLoading] = useState(true)
   const [activeSection, setActiveSection] = useState<string | null>(null)
+  const { toast } = useToast()
 
   useEffect(() => {
     fetch(`/api/reports/${params.id}`)
-      .then((r) => r.json())
-      .then((data) => { setReport(data); setLoading(false) })
-      .catch(() => setLoading(false))
-  }, [params.id])
+      .then(async (r) => {
+        if (!r.ok) throw new Error('Report not found or still generating')
+        return r.json()
+      })
+      .then((data) => {
+        setReport(data)
+        setLoading(false)
+      })
+      .catch((err) => {
+        setLoading(false)
+        toast({
+          title: 'Report Load Failed',
+          message: err instanceof Error ? err.message : 'Could not fetch report data',
+          type: 'error',
+        })
+      })
+  }, [params.id, toast])
 
   async function handleExport(format: 'pdf' | 'docx' | 'md') {
-    const res = await fetch('/api/export', {
-      method: 'POST',
-      headers: { 'Content-Type': 'application/json' },
-      body: JSON.stringify({ reportId: params.id, format }),
-    })
-    if (!res.ok) return
-    const blob = await res.blob()
-    const a = document.createElement('a')
-    a.href = URL.createObjectURL(blob)
-    a.download = `report.${format}`
-    a.click()
+    try {
+      toast({
+        title: 'Exporting Document',
+        message: `Preparing ${format.toUpperCase()} download...`,
+        type: 'info',
+      })
+      const res = await fetch('/api/export', {
+        method: 'POST',
+        headers: { 'Content-Type': 'application/json' },
+        body: JSON.stringify({ reportId: params.id, format }),
+      })
+      if (!res.ok) {
+        const err = await res.json().catch(() => ({ message: 'Export failed' }))
+        throw new Error(err.message || 'Export failed')
+      }
+      const blob = await res.blob()
+      const a = document.createElement('a')
+      a.href = URL.createObjectURL(blob)
+      a.download = `${(report?.title || 'project').replace(/\s+/g, '_')}_report.${format}`
+      a.click()
+      toast({
+        title: 'Export Complete',
+        message: `Downloaded ${format.toUpperCase()} report successfully!`,
+        type: 'success',
+      })
+    } catch (err: unknown) {
+      toast({
+        title: 'Export Error',
+        message: err instanceof Error ? err.message : 'Failed to export document',
+        type: 'error',
+      })
+    }
   }
 
   if (loading) return (

@@ -4,6 +4,7 @@ import { useRouter, useSearchParams } from 'next/navigation'
 import ProgressSteps from '@/components/analysis/ProgressSteps'
 import AnalysisStats from '@/components/analysis/AnalysisStats'
 import ErrorState from '@/components/analysis/ErrorState'
+import { useToast } from '@/components/ui/toast'
 
 const POLL_INTERVAL = 2000
 
@@ -11,6 +12,7 @@ export default function AnalyzePage() {
   const searchParams = useSearchParams()
   const router = useRouter()
   const url = searchParams.get('url') ?? ''
+  const { toast } = useToast()
 
   const [jobId, setJobId] = useState<string | null>(null)
   const [reportId, setReportId] = useState<string | null>(null)
@@ -32,13 +34,34 @@ export default function AnalyzePage() {
           body: JSON.stringify({ url }),
         })
         const data = await res.json()
-        if (!res.ok) throw new Error(data.message ?? 'Failed to start analysis')
+        if (!res.ok) {
+          const errMsg = data.message ?? 'Failed to start analysis'
+          toast({
+            title: 'Analysis Request Failed',
+            message: errMsg,
+            type: 'error',
+          })
+          throw new Error(errMsg)
+        }
         if (!cancelled) {
           setJobId(data.jobId)
           setReportId(data.reportId)
+          toast({
+            title: 'Analysis Started',
+            message: `Starting deep static & AI inspection for ${url.split('/').slice(-2).join('/')}`,
+            type: 'info',
+          })
         }
       } catch (e) {
-        if (!cancelled) setError(String(e))
+        if (!cancelled) {
+          const msg = e instanceof Error ? e.message : String(e)
+          setError(msg)
+          toast({
+            title: 'Connection Error',
+            message: msg,
+            type: 'error',
+          })
+        }
       }
     })()
 
@@ -62,11 +85,22 @@ export default function AnalyzePage() {
 
         if (data.status === 'completed' && reportId) {
           clearInterval(interval)
+          toast({
+            title: 'Analysis Complete',
+            message: 'All 27 sections generated successfully. Redirecting to report...',
+            type: 'success',
+          })
           router.push(`/report/${reportId}`)
         }
         if (data.status === 'failed') {
           clearInterval(interval)
-          setError(data.error ?? 'Analysis failed')
+          const failReason = data.error ?? 'Analysis pipeline encountered an error'
+          setError(failReason)
+          toast({
+            title: 'Pipeline Error',
+            message: failReason,
+            type: 'error',
+          })
         }
       } catch { /* network hiccup, keep polling */ }
     }, POLL_INTERVAL)

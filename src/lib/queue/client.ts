@@ -8,7 +8,18 @@ let analysisQueue: Queue | null = null
 
 export function getRedis(): IORedis {
   if (!connection) {
-    connection = new IORedis(REDIS_URL, { maxRetriesPerRequest: null })
+    connection = new IORedis(REDIS_URL, {
+      maxRetriesPerRequest: null,
+      enableReadyCheck: false,
+      lazyConnect: true,
+      retryStrategy(times) {
+        if (times > 3) return null
+        return Math.min(times * 200, 2000)
+      },
+    })
+    connection.on('error', () => {
+      // Handled gracefully when Redis is offline
+    })
   }
   return connection
 }
