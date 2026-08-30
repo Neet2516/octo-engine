@@ -492,6 +492,7 @@ export class OfflineStaticProvider implements AIProvider {
 
 export class FallbackProvider implements AIProvider {
   private providers: { name: string; provider: AIProvider }[]
+  private activeIndex: number = 0
 
   constructor(providers: { name: string; provider: AIProvider }[]) {
     this.providers = providers
@@ -499,8 +500,16 @@ export class FallbackProvider implements AIProvider {
 
   async complete(prompt: string, schema?: ZodSchema): Promise<unknown> {
     const errors: string[] = []
+    const total = this.providers.length
 
-    for (const { name, provider } of this.providers) {
+    // Advance the index immediately for parallel distribution (Round Robin)
+    const startIndex = this.activeIndex
+    this.activeIndex = (this.activeIndex + 1) % total
+
+    for (let i = 0; i < total; i++) {
+      const currentIndex = (startIndex + i) % total
+      const { name, provider } = this.providers[currentIndex]
+
       try {
         const result = await provider.complete(prompt, schema)
         return result
@@ -511,12 +520,21 @@ export class FallbackProvider implements AIProvider {
       }
     }
 
-    // ALL providers failed — throw so callers can use their own rich fallback
+    // ALL providers failed
     throw new Error(`All AI providers failed: ${errors.join(' | ')}`)
   }
 
   async *streamComplete(prompt: string): AsyncIterable<string> {
-    for (const { name, provider } of this.providers) {
+    const total = this.providers.length
+    
+    // Advance the index immediately for parallel distribution
+    const startIndex = this.activeIndex
+    this.activeIndex = (this.activeIndex + 1) % total
+
+    for (let i = 0; i < total; i++) {
+      const currentIndex = (startIndex + i) % total
+      const { name, provider } = this.providers[currentIndex]
+
       try {
         for await (const chunk of provider.streamComplete(prompt)) {
           yield chunk
@@ -540,8 +558,13 @@ export function getAIProvider(): AIProvider {
   if (groqKey) {
     // Primary model first, then fallback models in order of capability
     const groqModels = [
-      process.env.GROQ_MODEL || 'llama3-70b-8192',
-      'llama3-8b-8192',
+      process.env.GROQ_MODEL || 'openai/gpt-oss-120b',
+      'openai/gpt-oss-120b',
+      'openai/gpt-oss-20b',
+      'groq/compound',
+      'groq/compound-mini',
+      'qwen/qwen3.6-27b',
+      'allam-2-7b'
     ]
     for (const model of groqModels) {
       chain.push({ name: `Groq/${model}`, provider: new GroqProvider(groqKey, model) })

@@ -30,7 +30,8 @@ export default function ReportPage({ params }: { params: { id: string } }) {
           type: 'error',
         })
       })
-  }, [params.id, toast])
+    // eslint-disable-next-line react-hooks/exhaustive-deps
+  }, [params.id])
 
   async function handleExport(format: 'pdf' | 'docx' | 'md') {
     try {
